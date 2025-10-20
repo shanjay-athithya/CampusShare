@@ -11,7 +11,8 @@ const requireAdmin = async (req, res, next) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.id).select('-password');
+    const userId = decoded.id || decoded.userId; // our tokens use { userId }
+    const user = await User.findById(userId).select('-password');
     
     if (!user) {
       return res.status(401).json({ error: 'Invalid token.' });
