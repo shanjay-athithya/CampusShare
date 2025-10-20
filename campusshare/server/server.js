@@ -7,6 +7,7 @@ import authRoutes from './routes/authRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
 import resourceRoutes from './routes/resourceRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
+import statsRoutes from './routes/statsRoutes.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -28,6 +29,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/resources', resourceRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/stats', statsRoutes);
 
 // Serve uploaded files when using local storage option
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));

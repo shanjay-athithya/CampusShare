@@ -77,4 +77,12 @@ export const Resource = mongoose.models.Resource || mongoose.model('Resource', r
 
 export default Resource;
 
+// Text index for search (created once; safe on repeated loads)
+try {
+  resourceSchema.index(
+    { title: 'text', description: 'text', subject: 'text', department: 'text' },
+    { name: 'resource_text_index', weights: { title: 10, description: 5, subject: 4, department: 2 } }
+  );
+} catch {}
+
 

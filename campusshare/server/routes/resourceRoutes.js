@@ -1,5 +1,5 @@
 import express from 'express';
-import { createResource, getResources, getResource, deleteResource, voteResource, downloadResource, getDownloadUrl } from '../controllers/resourceController.js';
+import { createResource, getResources, getResource, deleteResource, voteResource, downloadResource, getDownloadUrl, searchResources } from '../controllers/resourceController.js';
 import { authenticate, isAdmin, optionalAuth } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
@@ -9,6 +9,9 @@ router.post('/', authenticate, createResource);
 
 // GET /api/resources - List resources with pagination and filtering (optional auth for vote status)
 router.get('/', optionalAuth, getResources);
+
+// GET /api/resources/search - Full text search
+router.get('/search', optionalAuth, searchResources);
 
 // GET /api/resources/:id - Get single resource
 router.get('/:id', getResource);

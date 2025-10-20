@@ -1,5 +1,6 @@
 import express from 'express';
 import { requireAdmin } from '../middleware/adminMiddleware.js';
+import { downloadsOverTime } from '../controllers/adminMetricsController.js';
 import {
   getAllResources,
   deleteResource,
@@ -25,5 +26,8 @@ router.delete('/resources/:id', deleteResource);
 // User management
 router.get('/users', getAllUsers);
 router.put('/users/:id/role', updateUserRole);
+
+// Metrics
+router.get('/metrics/downloads-over-time', requireAdmin, downloadsOverTime);
 
 export default router;

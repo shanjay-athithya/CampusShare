@@ -525,3 +525,62 @@ export const getDownloadUrl = async (req, res) => {
     });
   }
 };
+
+// GET /api/resources/search?q=...&page=1&limit=10
+export const searchResources = async (req, res) => {
+  try {
+    const q = (req.query.q || '').trim();
+    const page = Math.max(1, parseInt(req.query.page || '1', 10));
+    const limit = Math.max(1, Math.min(50, parseInt(req.query.limit || '10', 10)));
+    const skip = (page - 1) * limit;
+
+    if (!q) {
+      return res.status(400).json({ error: 'Missing q parameter' });
+    }
+
+    const filter = { $text: { $search: q } };
+    const projection = {
+      score: { $meta: 'textScore' },
+      title: 1,
+      description: 1,
+      department: 1,
+      subject: 1,
+      semester: 1,
+      uploadedBy: 1,
+      downloads: 1,
+      upvotes: 1,
+      downvotes: 1,
+      createdAt: 1
+    };
+
+    const [items, total] = await Promise.all([
+      Resource.find(filter, projection)
+        .sort({ score: { $meta: 'textScore' } })
+        .populate('uploadedBy', 'name email department')
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+      Resource.countDocuments(filter)
+    ]);
+
+    res.json({
+      resources: items.map(r => ({
+        ...r,
+        id: r._id,
+        upvotes: Array.isArray(r.upvotes) ? r.upvotes.length : (r.upvotes || 0),
+        downvotes: Array.isArray(r.downvotes) ? r.downvotes.length : (r.downvotes || 0),
+      })),
+      pagination: {
+        currentPage: page,
+        totalPages: Math.ceil(total / limit),
+        totalItems: total,
+        itemsPerPage: limit,
+        hasNextPage: skip + items.length < total,
+        hasPrevPage: page > 1
+      }
+    });
+  } catch (error) {
+    console.error('Search resources error:', error);
+    res.status(500).json({ error: 'Internal server error during search' });
+  }
+};
